@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+/* #include <unistd.h> */
+
+
+int fillBar(char * str, int len, int pnum);
 
 //int main(char ** argv, int argc){
 int main(int argc, char ** argv){
@@ -15,15 +20,39 @@ int main(int argc, char ** argv){
     }else{
         pnum = atoi(argv[1]);
     }
-    int num = pnum * len / 100;
     char * str = (char *) malloc(sizeof(char) * (len+7));
-    str[0] = '|';
-    str[len+1] = '|';
+    /* const struct timespec rqtp = {0, 100000000}; */
+    /* for(int i = 0; i < 100; i++){ */
+    /*     fillBar(str, len, i); */
+    /*     printf("\r%s", str); */
+    /*     fflush(stdout); */
+    /*     nanosleep(&rqtp, NULL); */
+    /* } */
+    /* for(int i = 99; i > 0; i--){ */
+    /*     fillBar(str, len, i); */
+    /*     printf("\r%s", str); */
+    /*     fflush(stdout); */
+    /*     nanosleep(&rqtp, NULL); */
+    /* } */
+    /* printf("\n"); */
+    fillBar(str, len, pnum);
+    printf("%s", str);
+
+
+    free(str);
+    return 0;
+}
+
+int fillBar(char * str, int len, int pnum){
+    int num2 = pnum * 2 * len / 100;
+    int num = num2 / 2;
+    str[0] = '[';
+    str[len+1] = ']';
+    // TODO make the boundary a ~ if its like halfway in between
     memset(str+1, (int) '=', num);
+    if(num2 % 2)
+        str[++num] = '~';
     memset(str+1+num, (int) '-', len-num);
     sprintf(str+len+2, "%3d%%\0", pnum);
-    puts(str);
-
-
     return 0;
 }
