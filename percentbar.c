@@ -44,15 +44,13 @@ int main(int argc, char ** argv){
 }
 
 int fillBar(char * str, int len, int pnum){
-    int num2 = pnum * 2 * len / 100;
+    int num2 = ((pnum > 100) ? 100 : pnum) * 2 * len / 100;
     int num = num2 / 2;
     str[0] = '[';
     str[len+1] = ']';
-    // TODO make the boundary a ~ if its like halfway in between
     memset(str+1, (int) '=', num);
-    if(num2 % 2)
-        str[++num] = '~';
+    if(num2 % 2)    str[++num] = '~';
     memset(str+1+num, (int) '-', len-num);
     sprintf(str+len+2, "%3d%%\0", pnum);
-    return 0;
+    return pnum > 100;
 }
