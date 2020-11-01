@@ -11,7 +11,7 @@ PHONY : clean install
 clean :
 	rm -f percentbar
 
-install :
+install : percentbar
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -f percentbar ${DESTDIR}${PREFIX}/bin
 	chmod 755 ${DESTDIR}${PREFIX}/bin/percentbar
