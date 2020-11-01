@@ -1,16 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <time.h>
-/* #include <unistd.h> */
+#include <unistd.h>
 
+#define DEFLEN 15
 
 int fillBar(char * str, int len, int pnum);
 
-//int main(char ** argv, int argc){
 int main(int argc, char ** argv){
     // TODO finish my parser so i can use it here
-    int len = 15;
+    struct winsize w;
+    ioctl(0, TIOCGWINSZ, &w);
+    // get the length and subtract 6 (3 for the number and 3 for []%)
+    int len = w.ws_col - 6;
+    // check to make sure the len is good (am i in a terminal, if not then checking col is meaningless)
+    if(len <= 0 || !isatty(fileno(stdin))){
+        len = DEFLEN;
+    }
     int pnum = 0;
     if(argc == 3){
         len = atoi(argv[1]);
@@ -52,5 +60,6 @@ int fillBar(char * str, int len, int pnum){
     if(num2 % 2)    str[++num] = '~';
     memset(str+1+num, (int) '-', len-num);
     sprintf(str+len+2, "%3d%%\0", pnum);
+    // TODO maybe just clamp pnum at 100 before entering the function
     return pnum > 100;
 }
