@@ -1,17 +1,20 @@
-CC = tcc
-SRC = percentbar.c
-DESTDIR=~
-PREFIX=/.local
+CC ?= tcc
+#SRC = percentbar.c
+TGTS = percentbar
+DESTDIR ?= ~
+PREFIX ?= /.local
+INSTALL_DIR = ${DESTDIR}${PREFIX}/bin
 
-percentbar : $(SRC)
-	$(CC) -o $@ $(SRC)
+.PHONY : all clean install
+all: $(TGTS)
+	chmod 755 $(TGTS)
 
-PHONY : clean install
+percentbar: percentbar.c percentlib.o
 
 clean :
-	rm -f percentbar
+	rm -f $(TGTS)
 
-install : percentbar
-	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f percentbar ${DESTDIR}${PREFIX}/bin
-	chmod 755 ${DESTDIR}${PREFIX}/bin/percentbar
+$(INSTALL_DIR):
+	mkdir -p $(INSTALL_DIR)
+install : all | $(INSTALL_DIR)
+	cp -f $(TGTS) $(INSTALL_DIR)
