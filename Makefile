@@ -1,6 +1,5 @@
 CC ?= tcc
-#SRC = percentbar.c
-TGTS = percentbar
+TGTS = percentbar cpupercent
 DESTDIR ?= ~
 PREFIX ?= /.local
 INSTALL_DIR = ${DESTDIR}${PREFIX}/bin
@@ -9,7 +8,8 @@ INSTALL_DIR = ${DESTDIR}${PREFIX}/bin
 all: $(TGTS)
 	chmod 755 $(TGTS)
 
-percentbar: percentbar.c percentlib.o
+$(TGTS): percentlib.o
+percentlib.o: %.o : %.c %.h
 
 clean :
 	rm -f $(TGTS)
