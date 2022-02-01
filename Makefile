@@ -1,5 +1,5 @@
 CC ?= tcc
-TGTS = percentbar cpupercent
+TGTS = percentbar cpupercentbars
 DESTDIR ?= ~
 PREFIX ?= /.local
 INSTALL_DIR = ${DESTDIR}${PREFIX}/bin
