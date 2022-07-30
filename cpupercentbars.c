@@ -53,14 +53,15 @@ int main(const int argc, const char * const argv[]){
 
     // read the cpu times data in from /proc/stat and save it
     FILE * statf = fopen("/proc/stat", "r");
-    unsigned long cpu, user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
-    fscanf(statf, "cpu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
+    unsigned int cpu;
+    unsigned long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+    fscanf(statf, "cpu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
     firstTime.active = user + system + nice + softirq + steal;
     firstTime.total  = firstTime.active + idle + iowait;
-    for(int i = 0; i < numCores; ++i){
-        fscanf(statf, "cpu%d %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", &cpu, &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
+    for(unsigned int i = 0; i < numCores; ++i){
+        fscanf(statf, "cpu%d %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", &cpu, &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
         if(i != cpu){
-            fprintf(stderr, "on cpu #%d but got cpu%d\n", i, cpu);
+            fprintf(stderr, "on cpu #%d but got cpu%u\n", i, cpu);
         }
         firstTimes[i].active = user + system + nice + softirq + steal;
         firstTimes[i].total  = firstTimes[i].active + idle + iowait;
@@ -72,7 +73,7 @@ int main(const int argc, const char * const argv[]){
 
     statf = fopen("/proc/stat", "r");
     unsigned long active, total;
-    fscanf(statf, "cpu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
+    fscanf(statf, "cpu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
     active = user + system + nice + softirq + steal;
     total  = active + idle + iowait;
     double percent = (double)(active - firstTime.active) * 100 / (double)(total - firstTime.total);
@@ -82,9 +83,9 @@ int main(const int argc, const char * const argv[]){
     char * pbar = fillBar(NULL, len-6, percent);
     printf("cpu   %s\n", pbar);
     for(int i = 0; i < numCores; ++i){
-        fscanf(statf, "cpu%d %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", &cpu, &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
+        fscanf(statf, "cpu%d %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", &cpu, &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
         if(i != cpu){
-            fprintf(stderr, "on cpu #%d but got cpu%d\n", i, cpu);
+            fprintf(stderr, "on cpu #%d but got cpu%u\n", i, cpu);
         }
         active = user + system + nice + softirq + steal;
         total  = active + idle + iowait;
