@@ -14,16 +14,36 @@ typedef struct cputimes_s{
 int main(const int argc, const char * const argv[]){
 
     // get the number of cores from the /dev/cpu dir
-    DIR * cpudir = opendir("/dev/cpu");
-    int numCores = 0;
-    for(struct dirent * de; de = readdir(cpudir); ){
-        int thisNum = atoi(de->d_name);
-        if(thisNum > numCores){
-            numCores = thisNum;
-        }
+    unsigned int numCores = 0;
+    //DIR * cpudir = opendir("/dev/cpu");
+    //for(struct dirent * de; (de = readdir(cpudir)) != NULL; ){
+    //    int thisNum = atoi(de->d_name);
+    //    if(thisNum > numCores){
+    //        numCores = thisNum;
+    //    }
+    //}
+    //closedir(cpudir);
+    //++numCores;
+    FILE * cpuinfof = fopen("/proc/cpuinfo", "r");
+    int numRead = 0;
+    size_t n = 0;
+    char * cpuinfoLine = NULL;
+    for(ssize_t len = getline(&cpuinfoLine, &n, cpuinfof); (numRead = sscanf(cpuinfoLine, "siblings\t: %u", &numCores)) == 0; len = getline(&cpuinfoLine, &n, cpuinfof));
+    free(cpuinfoLine);
+    fclose(cpuinfof);
+    int coresChars;
+    if(numCores < 10){
+        coresChars = 1;
+    }else if(numCores < 100){
+        coresChars = 2;
+    }else if(numCores < 1000){
+        coresChars = 3;
+    }else{
+        unsigned int comp = 10000;
+        for(coresChars = 4; numCores >= comp && comp < 1000000000; comp *= 10, ++coresChars);
     }
-    closedir(cpudir);
-    ++numCores;
+    // header is cpu + number + space
+    int headerSize = 3 + 1 + coresChars;
 
     // get the amount of time to sleep if not 1s
     double sleeptimed = 1;
@@ -43,7 +63,7 @@ int main(const int argc, const char * const argv[]){
     sleeptime.tv_sec = (long)sleeptimed;
     sleeptime.tv_nsec = (sleeptimed - sleeptime.tv_sec) * 1000000000;
 
-    // get the window size to use for the 
+    // get the window size to use for the bars
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
     int len = w.ws_col;
@@ -93,8 +113,8 @@ int main(const int argc, const char * const argv[]){
         if(percent > 100){
             percent = 100;
         }
-        fillBar(pbar, len-6, percent);
-        printf("cpu%2d %s\n", i, pbar); // yes this assumes i have less than 100 threads
+        fillBar(pbar, len-headerSize, percent);
+        printf("cpu%*d %s\n", coresChars, i, pbar); // yes this assumes i have less than 100 threads
     }
     fclose(statf);
     free(pbar);
